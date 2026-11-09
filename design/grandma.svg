@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 640">
+  <defs>
+    <radialGradient id="skin" cx="45%" cy="40%" r="65%">
+      <stop offset="0" stop-color="#FFE0C7"/><stop offset="1" stop-color="#F2B894"/>
+    </radialGradient>
+    <linearGradient id="hair" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#D5D8E0"/>
+    </linearGradient>
+    <linearGradient id="cardigan" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#B05FB8"/><stop offset="1" stop-color="#7E3C8C"/>
+    </linearGradient>
+    <linearGradient id="phone" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#3DDC84"/><stop offset="1" stop-color="#1E9E57"/>
+    </linearGradient>
+  </defs>
+
+  <!-- body / cardigan -->
+  <path d="M110 640 C110 520 180 470 300 470 C420 470 490 520 490 640 Z" fill="url(#cardigan)"/>
+  <path d="M245 476 L300 600 L355 476 Z" fill="#F7EEE4"/>
+  <path d="M300 600 L300 640" stroke="#6B2F78" stroke-width="6"/>
+  <circle cx="300" cy="560" r="6" fill="#F3D27A"/><circle cx="300" cy="610" r="6" fill="#F3D27A"/>
+  <!-- pearl necklace -->
+  <g fill="#FFFDF5" stroke="#E6DCC8" stroke-width="2">
+    <circle cx="252" cy="486" r="9"/><circle cx="268" cy="500" r="9"/><circle cx="284" cy="509" r="9"/>
+    <circle cx="300" cy="512" r="9"/><circle cx="316" cy="509" r="9"/><circle cx="332" cy="500" r="9"/><circle cx="348" cy="486" r="9"/>
+  </g>
+  <!-- neck -->
+  <path d="M265 430 L265 478 Q300 496 335 478 L335 430 Z" fill="#EBAE8A"/>
+
+  <!-- hair back + bun -->
+  <circle cx="300" cy="120" r="78" fill="url(#hair)"/>
+  <path d="M250 92 Q300 70 350 92" stroke="#C7CBD6" stroke-width="5" fill="none"/>
+  <path d="M262 135 Q300 115 338 135" stroke="#C7CBD6" stroke-width="5" fill="none"/>
+  <path d="M168 270 C150 170 220 150 300 150 C380 150 450 170 432 270 C440 330 420 380 400 400 L200 400 C180 380 160 330 168 270 Z" fill="url(#hair)"/>
+  <!-- hairpin -->
+  <rect x="345" y="72" width="40" height="10" rx="5" fill="#E86A92" transform="rotate(-25 365 77)"/>
+
+  <!-- face -->
+  <ellipse cx="300" cy="300" rx="122" ry="138" fill="url(#skin)"/>
+  <!-- ears -->
+  <ellipse cx="180" cy="305" rx="20" ry="30" fill="#F2B894"/>
+  <circle cx="180" cy="336" r="7" fill="#FFFDF5" stroke="#E6DCC8" stroke-width="2"/>
+  <!-- fringe -->
+  <path d="M185 250 C200 175 260 165 300 175 C345 165 400 180 415 250 C380 215 345 205 300 212 C255 205 220 215 185 250 Z" fill="url(#hair)"/>
+  <path d="M220 228 Q260 200 300 205" stroke="#C7CBD6" stroke-width="4" fill="none"/>
+  <path d="M300 205 Q345 200 382 228" stroke="#C7CBD6" stroke-width="4" fill="none"/>
+
+  <!-- cheeks -->
+  <ellipse cx="228" cy="345" rx="30" ry="20" fill="#FF8FA3" opacity=".55"/>
+  <ellipse cx="372" cy="345" rx="30" ry="20" fill="#FF8FA3" opacity=".55"/>
+  <!-- eyebrows -->
+  <path d="M222 262 Q250 248 276 262" stroke="#B9BCC6" stroke-width="8" stroke-linecap="round" fill="none"/>
+  <path d="M324 262 Q350 248 378 262" stroke="#B9BCC6" stroke-width="8" stroke-linecap="round" fill="none"/>
+  <!-- happy eyes behind glasses -->
+  <path d="M232 302 Q250 286 268 302" stroke="#4A2E22" stroke-width="7" stroke-linecap="round" fill="none"/>
+  <path d="M332 302 Q350 286 368 302" stroke="#4A2E22" stroke-width="7" stroke-linecap="round" fill="none"/>
+  <!-- big round glasses -->
+  <g fill="#FFFFFF" fill-opacity=".18" stroke="#7A4A2E" stroke-width="9">
+    <circle cx="250" cy="300" r="44"/><circle cx="350" cy="300" r="44"/>
+  </g>
+  <path d="M294 298 Q300 290 306 298" stroke="#7A4A2E" stroke-width="8" fill="none"/>
+  <path d="M206 296 L186 290" stroke="#7A4A2E" stroke-width="7" stroke-linecap="round"/>
+  <!-- glasses shine -->
+  <path d="M226 280 Q232 270 244 268" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round" fill="none" opacity=".8"/>
+  <path d="M326 280 Q332 270 344 268" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round" fill="none" opacity=".8"/>
+  <!-- nose -->
+  <path d="M300 315 Q318 350 296 356" stroke="#D9906B" stroke-width="7" stroke-linecap="round" fill="none"/>
+  <!-- smile -->
+  <path d="M250 380 Q300 425 350 380 Q300 400 250 380 Z" fill="#B8475E"/>
+  <path d="M262 384 Q300 398 338 384" stroke="#FFFFFF" stroke-width="7" stroke-linecap="round" fill="none"/>
+  <!-- smile lines -->
+  <path d="M236 372 Q232 382 238 392" stroke="#E2A07E" stroke-width="4" stroke-linecap="round" fill="none"/>
+  <path d="M364 372 Q368 382 362 392" stroke="#E2A07E" stroke-width="4" stroke-linecap="round" fill="none"/>
+
+  <!-- arm + hand holding the phone to the ear -->
+  <path d="M470 560 C500 470 470 400 445 360" stroke="url(#cardigan)" stroke-width="58" stroke-linecap="round" fill="none"/>
+  <g transform="rotate(14 432 316)">
+    <rect x="400" y="236" width="66" height="128" rx="14" fill="#2B2F36"/>
+    <rect x="407" y="246" width="52" height="104" rx="9" fill="url(#phone)"/>
+    <path transform="translate(415 280) scale(1.5)" fill="#fff" d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56-.35-.12-.74-.03-1.01.24l-1.57 1.97c-2.83-1.35-5.48-3.9-6.89-6.83l1.95-1.66c.27-.28.35-.67.24-1.02-.37-1.11-.56-2.3-.56-3.53 0-.54-.45-.99-.99-.99H4.19C3.65 3 3 3.24 3 3.99 3 13.28 10.73 21 20.01 21c.71 0 .99-.63.99-1.18v-3.45c0-.54-.45-.99-.99-.99z"/>
+  </g>
+  <ellipse cx="452" cy="352" rx="34" ry="40" fill="#F2B894"/>
+  <path d="M424 330 Q414 345 424 360" stroke="#E2A07E" stroke-width="4" fill="none"/>
+
+  <!-- ringing waves -->
+  <g stroke="#3DDC84" stroke-width="10" stroke-linecap="round" fill="none">
+    <path d="M500 230 Q530 260 510 300"/>
+    <path d="M525 200 Q575 255 540 320"/>
+  </g>
+</svg>
