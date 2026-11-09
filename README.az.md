@@ -137,44 +137,21 @@ Danışığın özü isə **telefonlar arasında** gedir.
 - **Zəng səsi:** yalnız MP3 və AAC qəbul olunur, Android 5 Opus çala bilmir. Səs çalmasa, əvvəl telefonun öz zəng səsinə, sonra sadə siqnala keçir. Telefon heç vaxt səssiz çalmır.
 - **Yuxu:** köhnə Android boş bağlantını tətbiqə xəbər vermədən öldürür. Ona görə dəqiq alarm telefonu 45 saniyədən bir oyadır.
 
-## Quraşdırma
+## Özün qur
 
-### Server
+Lazım olanlar: kiçik server (1 vCPU, 1 GB RAM), domen və öz serverinin ünvanı ilə yığılmış APK.
+**Addım-addım bələdçi: [docs/SELF_HOSTING.md](docs/SELF_HOSTING.md)** (ingiliscə).
 
-```bash
-cd server && CGO_ENABLED=0 go build -ldflags="-s -w" -o zeng
-cp zeng ../deploy/call-server
-```
-
-Serverdə:
-1. `deploy/` qovluğunu `/opt/call`-a köçür.
-2. `deploy/.env.example`-dən `.env` yarat.
-3. Firebase service account açarını `/opt/call/fcm.json` kimi qoy. Bu addım məcburi deyil, açar olmasa telefonlar push ilə oyadılmır.
-4. İşə sal:
+Qısaca:
 
 ```bash
-docker compose up -d --build
+# server
+cd deploy && ./setup.sh call.senin-domenin.com   # .env və nginx yaradır, admin linkini və qrup kodunu göstərir
+docker compose up -d --build                     # Go serveri mənbə koddan yığır
+
+# app (android/local.properties: call.server=https://call.senin-domenin.com)
+cd android && ./gradlew assembleRelease
 ```
-
-Sonra nginx-i `127.0.0.1:18095`-ə yönləndir (`deploy/nginx-call.conf`), certbot ilə sertifikat al.
-TURN üçün 3478/udp+tcp və 49160–49200/udp portlarını aç.
-
-### Android tətbiqi
-
-Öz Firebase layihən (`android/app/google-services.json`) və öz imza açarın lazımdır:
-
-```
-android/zeng.keystore          # release açarı, onu itirmə: yeniləmələr eyni açarla imzalanmalıdır
-android/keystore.properties    # storeFile=zeng.keystore, storePassword=…, keyAlias=zeng, keyPassword=…
-android/local.properties       # sdk.dir=…, call.server=https://call.example.com
-```
-
-```bash
-cd android && ./gradlew assembleRelease            # və ya -Pserver=https://sənin-domenin
-```
-
-Yaranan `app/build/outputs/apk/release/app-release.apk` faylını admin paneldə **Tətbiq → Yeni versiya** bölməsindən yüklə:
-bütün telefonlarda "Yenilə" zolağı görünəcək. İlk quraşdırma üçün **Qruplar** bölməsindəki açıq linkdən istifadə et.
 
 ## Töhfə vermək
 

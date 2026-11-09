@@ -136,41 +136,21 @@ Old phones needed a few extra tricks:
 - **Sleep**: an exact alarm wakes the phone every 45 s for a heartbeat, because old Android versions kill idle sockets
   without telling the app.
 
-## Build and run
+## Run it yourself
 
-### Server
+All you need is a small server (1 vCPU, 1 GB RAM), a domain, and an APK built with your server's address.
+**Follow the step-by-step guide: [docs/SELF_HOSTING.md](docs/SELF_HOSTING.md).**
 
-```bash
-cd server && CGO_ENABLED=0 go build -ldflags="-s -w" -o zeng
-cp zeng ../deploy/call-server
-```
-
-On the server: copy `deploy/` to `/opt/call`, create `.env` from `deploy/.env.example`, put the Firebase
-service-account key at `/opt/call/fcm.json` (optional; without it there are no push wake-ups), then:
+The short version:
 
 ```bash
-docker compose up -d --build
+# server
+cd deploy && ./setup.sh call.yourname.com    # writes .env + nginx config, prints admin link & join code
+docker compose up -d --build                 # builds the Go server from source
+
+# app (android/local.properties: call.server=https://call.yourname.com)
+cd android && ./gradlew assembleRelease
 ```
-
-Point nginx at `127.0.0.1:18095` (`deploy/nginx-call.conf`), get a certificate with certbot, and open
-3478/udp+tcp and 49160–49200/udp for TURN.
-
-### Android app
-
-You need your own Firebase project (`android/app/google-services.json`) and signing key:
-
-```
-android/zeng.keystore          # your release key; keep it, updates must be signed with it
-android/keystore.properties    # storeFile=zeng.keystore, storePassword=…, keyAlias=zeng, keyPassword=…
-android/local.properties       # sdk.dir=…, call.server=https://call.example.com
-```
-
-```bash
-cd android && ./gradlew assembleRelease            # or -Pserver=https://your-domain
-```
-
-Upload `app/build/outputs/apk/release/app-release.apk` in the admin panel (**Tətbiq → Yeni versiya**):
-every phone gets an "Update" banner. The first install goes through the public link shown under **Qruplar**.
 
 ## Contributing
 

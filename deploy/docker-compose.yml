@@ -1,14 +1,15 @@
-# Call — family calling app. Server behind host nginx (TLS), coturn for media relay.
+# Call: signaling server + coturn (TURN relay). Run ./setup.sh first; it writes .env.
 name: call
 services:
   server:
-    build: .
-    image: call-server:latest
+    build: ../server            # built from source inside Docker
     restart: unless-stopped
-    ports: ["127.0.0.1:18095:8080"]
-    volumes: ["./data:/data", "./fcm.json:/fcm.json:ro"]
+    ports: ["127.0.0.1:18095:8080"]   # nginx in front terminates HTTPS
+    volumes:
+      - ./data:/data
+      - ./secrets:/secrets:ro         # optional: secrets/fcm.json (Firebase service account) enables push wake-ups
     env_file: .env
-    environment: {FCM_KEY: /fcm.json}   # Firebase service-account key (secret, not in git)
+    environment: {FCM_KEY: /secrets/fcm.json}
 
   turn:
     image: coturn/coturn:4.6

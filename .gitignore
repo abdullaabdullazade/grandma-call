@@ -12,7 +12,9 @@ android/keystore.properties
 android/local.properties
 android/app/google-services.json
 deploy/.env
-deploy/fcm.json
+deploy/secrets/
+deploy/data/
+deploy/nginx-*.*.conf
 *firebase-adminsdk*.json
 
 # binaries & runtime data
@@ -22,3 +24,4 @@ data/
 *.log
 .idea/
 .DS_Store
+design/post*/

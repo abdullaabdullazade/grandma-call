@@ -39,6 +39,10 @@ func loadFCM() {
 		return
 	}
 	b, err := os.ReadFile(path)
+	if os.IsNotExist(err) {
+		log.Print("fcm: no key file, push wake-ups disabled (optional)")
+		return
+	}
 	if err != nil {
 		log.Print("fcm: ", err)
 		return
