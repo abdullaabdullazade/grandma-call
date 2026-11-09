@@ -281,10 +281,11 @@ func adminRingtone(w http.ResponseWriter, r *http.Request) {
 	n, _ := io.ReadFull(file, head)
 	ct := http.DetectContentType(head[:n])
 	if !audioTypes[ct] {
-		// DetectContentType misses some MP3s without ID3 tags; fall back to the extension
+		// DetectContentType can't tell MP3s without ID3 tags or raw AAC (octet-stream) and calls m4a
+		// "video/mp4": fall back to the extension for those only. A WAV or Ogg named .mp3 stays rejected.
 		ext := strings.ToLower(filepath.Ext(hdr.Filename))
 		byExt := map[string]string{".mp3": "audio/mpeg", ".m4a": "audio/mp4", ".aac": "audio/aac"}
-		if byExt[ext] == "" {
+		if byExt[ext] == "" || (ct != "application/octet-stream" && ct != "video/mp4") {
 			http.Error(w, "yalnız MP3 və ya M4A (köhnə telefonlar başqa formatı çala bilmir)", 400)
 			return
 		}
