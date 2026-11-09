@@ -46,13 +46,82 @@ Reponu paylaşıram, bəlkə kiminsə də köhnə telefonlu nənəsi, babası va
 
 ## Necə işləyir
 
+### Arxitektura
+
+```mermaid
+flowchart LR
+    subgraph P1["📱 Zəng edənin telefonu"]
+        A1["Call app<br/>(Kotlin + WebRTC)"]
+    end
+    subgraph P2["📱 Nənənin telefonu"]
+        A2["Call app<br/>(Kotlin + WebRTC)"]
+    end
+    subgraph S["☁️ Server (Docker)"]
+        N["nginx<br/>HTTPS :443"]
+        G["Go server<br/>otaqlar · onlayn status · tarixçə<br/>admin panel · OTA"]
+        D[("db.json")]
+        T["coturn<br/>TURN ötürücü :3478/udp"]
+        N --> G
+        G --- D
+    end
+    F["🔔 Google FCM"]
+
+    A1 <-->|"① WebSocket (JSON siqnallar)"| N
+    A2 <-->|"① WebSocket (JSON siqnallar)"| N
+    G -->|"③ yatmış telefonu oyat"| F
+    F -.-> A2
+    A1 <==>|"② səs və görüntü — UDP, birbaşa (P2P)"| A2
+    A1 -.->|"② birbaşa alınmasa — ehtiyat yol"| T
+    T -.-> A2
 ```
- telefon A ──wss──┐                              ┌──wss── telefon B
-                  ├── Go signaling serveri ──────┤
-                  │   (otaqlar, onlayn status,   │
-                  │    tarixçə, admin, OTA, FCM) │
- telefon A ═════ WebRTC səs/görüntü (birbaşa və ya coturn/TURN ilə) ═════ telefon B
+
+**İki ayrı yol** var:
+
+| | Nə gedir | Yol | Go serverdən keçirmi? |
+|---|---|---|---|
+| ① **Siqnallar** | kiçik JSON mesajlar: *zəng*, *çalır*, *cavab*, *bitir*, şəbəkə ünvanları (SDP/ICE) | telefon → nginx → Go server → o biri telefon, daim açıq WebSocket ilə | **Bəli, həmişə** |
+| ② **Səs və görüntü** | Opus/VP8 paketləri, saniyədə ~50 UDP paketi | telefonlar arasında birbaşa (WebRTC) | **Xeyr** |
+| ② **Səs, ehtiyat yol** | eyni paketlər, NAT birbaşa bağlantıya mane olanda | telefon → coturn → telefon | Xeyr, coturn şifrəli paketləri sadəcə ötürür |
+| ③ **Oyatma** | "bu telefonu oyat" | Go server → Google FCM → telefon | yalnız push |
+
+### Bir zəng, addım-addım
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant A as 📱 Zəng edən
+    participant S as ☁️ Go server
+    participant G as Google FCM
+    participant B as 📱 Nənə
+    Note over A,B: Hər iki app serverlə WebSocket-i açıq saxlayır
+    A->>S: {"type":"call","to":"nənə"}
+    S->>B: {"type":"incoming","from":"Abdulla"}
+    alt telefon yuxudadır / bağlantı ölüdür (4 san. cavab yoxdur)
+        S->>G: nənənin telefonunu oyat
+        G->>B: yüksək prioritetli push
+        B->>S: yenidən qoşulur
+        S->>B: {"type":"incoming"} yenidən
+    end
+    B->>S: {"type":"ring_ack"}
+    S->>A: {"type":"ringing"}  → "Zəng çalır…"
+    B->>S: {"type":"accept"}
+    S->>B: joined (iştirakçılar: zəng edən)
+    S->>A: peer_joined (nənə)
+    B->>S: SDP təklifi (kodeklər, ünvanlar)
+    S->>A: SDP təklifi
+    A->>S: SDP cavabı
+    S->>B: SDP cavabı
+    A-->>B: ICE namizədləri (hər iki tərəfə, server vasitəsilə)
+    A<<->>B: 🔊 səs/görüntü — birbaşa UDP (və ya coturn ilə)
+    A->>S: {"type":"hangup"}
+    S->>B: {"type":"ended"}
+    Note over S: zəng tarixçəyə yazılır (kim, kimə, neçə saniyə)
 ```
+
+Server **telefon stansiyası** kimidir: kimin onlayn olduğunu bilir və xətti birləşdirir.
+Danışığın özü isə **telefonlar arasında** gedir.
+
+### Hissələr
 
 - **server/**: tək Go binary (`main.go`, `calls.go`, `push.go`, `update.go`), admin panel içinə yerləşdirilib.
   Server yalnız siqnalları ötürür. Səs və görüntü telefonlar arasında birbaşa gedir, NAT mane olanda TURN üzərindən.

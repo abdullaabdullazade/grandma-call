@@ -40,13 +40,82 @@ I'm sharing the repo in case someone else has a grandparent with an old phone.
 
 ## How it works
 
+### Architecture
+
+```mermaid
+flowchart LR
+    subgraph P1["📱 Caller's phone"]
+        A1["Call app<br/>(Kotlin + WebRTC)"]
+    end
+    subgraph P2["📱 Grandma's phone"]
+        A2["Call app<br/>(Kotlin + WebRTC)"]
+    end
+    subgraph S["☁️ Server (Docker)"]
+        N["nginx<br/>HTTPS :443"]
+        G["Go server<br/>rooms · presence · history<br/>admin panel · OTA"]
+        D[("db.json")]
+        T["coturn<br/>TURN relay :3478/udp"]
+        N --> G
+        G --- D
+    end
+    F["🔔 Google FCM"]
+
+    A1 <-->|"① WebSocket (JSON signaling)"| N
+    A2 <-->|"① WebSocket (JSON signaling)"| N
+    G -->|"③ wake up a sleeping phone"| F
+    F -.-> A2
+    A1 <==>|"② voice & video — UDP, direct (P2P)"| A2
+    A1 -.->|"② fallback when P2P is blocked"| T
+    T -.-> A2
 ```
- phone A ──wss──┐                              ┌──wss── phone B
-                ├── Go signaling server ───────┤
-                │   (rooms, presence, history, │
-                │    admin API, OTA, FCM)      │
- phone A ═════ WebRTC media (P2P, or relayed by coturn/TURN) ═════ phone B
+
+There are **two separate paths**:
+
+| | What travels | Path | Through the Go server? |
+|---|---|---|---|
+| ① **Signaling** | small JSON messages: *call*, *ringing*, *answer*, *hang up*, network addresses (SDP/ICE) | phone → nginx → Go server → other phone, over a WebSocket that stays open | **Yes, always** |
+| ② **Media** | voice & video (Opus/VP8), ~50 UDP packets per second | straight between the phones (WebRTC) | **No** |
+| ② **Media, fallback** | same packets, when NAT blocks a direct connection | phone → coturn → phone | No; coturn only relays encrypted packets |
+| ③ **Wake-up** | "wake this phone" | Go server → Google FCM → phone | push only |
+
+### One call, step by step
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant A as 📱 Caller
+    participant S as ☁️ Go server
+    participant G as Google FCM
+    participant B as 📱 Grandma
+    Note over A,B: Both apps keep a WebSocket open to the server
+    A->>S: {"type":"call","to":"grandma"}
+    S->>B: {"type":"incoming","from":"Abdulla"}
+    alt phone asleep / dead socket (no ack in 4 s)
+        S->>G: wake grandma's phone
+        G->>B: high-priority push
+        B->>S: reconnects
+        S->>B: {"type":"incoming"} again
+    end
+    B->>S: {"type":"ring_ack"}
+    S->>A: {"type":"ringing"}  → "Ringing…"
+    B->>S: {"type":"accept"}
+    S->>B: joined (peers: caller)
+    S->>A: peer_joined (grandma)
+    B->>S: SDP offer (codecs, addresses)
+    S->>A: SDP offer
+    A->>S: SDP answer
+    S->>B: SDP answer
+    A-->>B: ICE candidates (both ways, via the server)
+    A<<->>B: 🔊 voice/video — direct UDP (or via coturn)
+    A->>S: {"type":"hangup"}
+    S->>B: {"type":"ended"}
+    Note over S: call saved to history (who, whom, how long)
 ```
+
+The server is the **switchboard**: it knows who is online and connects the line.
+The conversation itself happens **between the phones**.
+
+### Components
 
 - **server/** — a single Go binary (`main.go`, `calls.go`, `push.go`, `update.go`) with the admin panel embedded.
   It relays signaling only; audio and video go directly between phones, or through TURN when NAT gets in the way.
