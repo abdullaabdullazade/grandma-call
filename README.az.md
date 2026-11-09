@@ -21,6 +21,15 @@ Ailə üzvlərinin siyahısı, böyük düymələr, tam ekran zəng pəncərəsi
 
 Reponu paylaşıram, bəlkə kiminsə də köhnə telefonlu nənəsi, babası var. ❤️
 
+## Ekran şəkilləri
+
+<table>
+<tr><td align="center"><img src="docs/screenshots/01-join.png" width="200"><br><sub>Ad və qrup kodu ilə qoşulma</sub></td><td align="center"><img src="docs/screenshots/02-contacts.png" width="200"><br><sub>Ailə kontaktları</sub></td><td align="center"><img src="docs/screenshots/03-call.png" width="200"><br><sub>Səsli zəng</sub></td><td align="center"><img src="docs/screenshots/04-group.png" width="200"><br><sub>Qrup zəngi (4 nəfərə qədər)</sub></td></tr>
+<tr><td align="center"><img src="docs/screenshots/05-incoming.png" width="200"><br><sub>Gələn zəng</sub></td><td align="center"><img src="docs/screenshots/06-video.png" width="200"><br><sub>Görüntülü zəng: öz kameran</sub></td><td align="center"><img src="docs/screenshots/07-history.png" width="200"><br><sub>Zəng tarixçəsi</sub></td></tr>
+</table>
+
+<sub>Tətbiq standart olaraq azərbaycancadır, EN düyməsi ilə ingiliscəyə keçir.</sub>
+
 ## Nə edir
 
 - **Səsli və görüntülü zəng.** Səs və görüntü telefonlar arasında birbaşa gedir (WebRTC, Opus, exo ləğvi).

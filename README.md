@@ -22,6 +22,15 @@ in. Big buttons, one list of family members, a full-screen ringing screen, and t
 
 I'm sharing the repo in case someone else has a grandparent with an old phone.
 
+## Screenshots
+
+<table>
+<tr><td align="center"><img src="docs/screenshots/01-join.png" width="200"><br><sub>Join with name + group code</sub></td><td align="center"><img src="docs/screenshots/02-contacts.png" width="200"><br><sub>Family contacts</sub></td><td align="center"><img src="docs/screenshots/03-call.png" width="200"><br><sub>Voice call</sub></td><td align="center"><img src="docs/screenshots/04-group.png" width="200"><br><sub>Group call (up to 4)</sub></td></tr>
+<tr><td align="center"><img src="docs/screenshots/05-incoming.png" width="200"><br><sub>Incoming call</sub></td><td align="center"><img src="docs/screenshots/06-video.png" width="200"><br><sub>Video call: your camera</sub></td><td align="center"><img src="docs/screenshots/07-history.png" width="200"><br><sub>Call history</sub></td></tr>
+</table>
+
+<sub>The app is in Azerbaijani by default; English is one tap away (EN button).</sub>
+
 ## What it does
 
 - **Voice and video calls** between family members, peer-to-peer over WebRTC (Opus audio, echo cancellation).
