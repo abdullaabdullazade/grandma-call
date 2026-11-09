@@ -1,0 +1,39 @@
+# Call — family calling app. Server behind host nginx (TLS), coturn for media relay.
+name: call
+services:
+  server:
+    build: .
+    image: call-server:latest
+    restart: unless-stopped
+    ports: ["127.0.0.1:18095:8080"]
+    volumes: ["./data:/data", "./fcm.json:/fcm.json:ro"]
+    env_file: .env
+    environment: {FCM_KEY: /fcm.json}   # Firebase service-account key (secret, not in git)
+
+  turn:
+    image: coturn/coturn:4.6
+    restart: unless-stopped
+    network_mode: host
+    command:
+      - -n
+      - --listening-port=3478
+      - --external-ip=${TURN_EXTERNAL_IP}
+      - --fingerprint
+      - --use-auth-secret
+      - --static-auth-secret=${TURN_SECRET}
+      - --realm=${TURN_REALM}
+      - --min-port=49160
+      - --max-port=49200
+      - --no-cli
+      - --no-tls
+      - --no-dtls
+      - --no-multicast-peers
+      - --denied-peer-ip=0.0.0.0-0.255.255.255
+      - --denied-peer-ip=10.0.0.0-10.255.255.255
+      - --denied-peer-ip=127.0.0.0-127.255.255.255
+      - --denied-peer-ip=169.254.0.0-169.254.255.255
+      - --denied-peer-ip=172.16.0.0-172.31.255.255
+      - --denied-peer-ip=192.168.0.0-192.168.255.255
+      - --total-quota=100
+      - --log-file=stdout
+      - --simple-log

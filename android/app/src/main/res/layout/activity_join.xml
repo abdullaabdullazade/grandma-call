@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent" android:fillViewport="true">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:gravity="center_horizontal" android:orientation="vertical" android:padding="28dp">
+
+        <ImageView android:layout_width="112dp" android:layout_height="112dp"
+            android:layout_marginTop="48dp" android:src="@mipmap/ic_launcher" />
+
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_marginTop="16dp" android:text="@string/app_name"
+            android:textColor="@color/text" android:textSize="30sp" android:textStyle="bold" />
+
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_marginTop="6dp" android:layout_marginBottom="32dp" android:gravity="center"
+            android:text="@string/join_hint"
+            android:textColor="@color/muted" android:textSize="15sp" />
+
+        <EditText android:id="@+id/name" android:layout_width="match_parent" android:layout_height="56dp"
+            android:background="@drawable/field" android:hint="@string/name_hint" android:inputType="textPersonName|textCapWords"
+            android:maxLength="30" android:paddingLeft="16dp" android:paddingRight="16dp" android:textSize="18sp" android:singleLine="true" />
+
+        <EditText android:id="@+id/code" android:layout_width="match_parent" android:layout_height="56dp"
+            android:layout_marginTop="12dp" android:background="@drawable/field" android:hint="@string/code_hint"
+            android:inputType="text" android:paddingLeft="16dp" android:paddingRight="16dp" android:textSize="18sp" android:singleLine="true" />
+
+        <TextView android:id="@+id/error" android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_marginTop="12dp" android:textColor="@color/red" android:textSize="15sp" />
+
+        <Button android:id="@+id/go" android:layout_width="match_parent" android:layout_height="56dp"
+            android:layout_marginTop="12dp" android:background="@drawable/btn_primary" android:text="@string/join"
+            android:textAllCaps="false" android:textColor="@android:color/white" android:textSize="18sp" />
+    </LinearLayout>
+</ScrollView>

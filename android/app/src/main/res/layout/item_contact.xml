@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="76dp"
+    android:background="?android:attr/selectableItemBackground"
+    android:gravity="center_vertical" android:paddingStart="16dp" android:paddingEnd="8dp">
+
+    <FrameLayout android:layout_width="52dp" android:layout_height="52dp">
+        <TextView android:id="@+id/avatar" android:layout_width="52dp" android:layout_height="52dp"
+            android:gravity="center" android:textColor="@android:color/white" android:textSize="22sp" android:textStyle="bold" />
+        <View android:id="@+id/online" android:layout_width="14dp" android:layout_height="14dp"
+            android:layout_gravity="bottom|end" android:background="@drawable/dot_online" />
+    </FrameLayout>
+
+    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+        android:layout_marginStart="16dp" android:orientation="vertical">
+        <TextView android:id="@+id/name" android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:ellipsize="end" android:singleLine="true" android:textColor="@color/text" android:textSize="18sp" />
+        <TextView android:id="@+id/sub" android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_marginTop="2dp" android:singleLine="true" android:textColor="@color/muted" android:textSize="14sp" />
+    </LinearLayout>
+
+    <ImageButton android:id="@+id/voice" android:layout_width="48dp" android:layout_height="48dp"
+        android:background="?android:attr/selectableItemBackgroundBorderless" android:padding="12dp"
+        android:scaleType="fitCenter" android:src="@drawable/ic_call" android:tint="@color/green_light" />
+    <ImageButton android:id="@+id/video" android:layout_width="48dp" android:layout_height="48dp"
+        android:background="?android:attr/selectableItemBackgroundBorderless" android:padding="11dp"
+        android:scaleType="fitCenter" android:src="@drawable/ic_videocam" android:tint="@color/green_light" />
+</LinearLayout>

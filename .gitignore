@@ -1,0 +1,24 @@
+# build output
+android/.gradle/
+android/build/
+android/app/build/
+android/.kotlin/
+*.apk
+*.aab
+
+# secrets (never commit)
+android/zeng.keystore
+android/keystore.properties
+android/local.properties
+android/app/google-services.json
+deploy/.env
+deploy/fcm.json
+*firebase-adminsdk*.json
+
+# binaries & runtime data
+server/zeng
+deploy/call-server
+data/
+*.log
+.idea/
+.DS_Store

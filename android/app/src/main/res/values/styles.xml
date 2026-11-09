@@ -1,0 +1,29 @@
+<resources>
+    <style name="Theme.Zeng" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:colorPrimary">@color/green</item>
+        <item name="android:colorPrimaryDark">@color/green</item>
+        <item name="android:colorAccent">@color/green_light</item>
+        <item name="android:statusBarColor">@color/green</item>
+        <item name="android:windowBackground">@android:color/white</item>
+    </style>
+    <style name="Theme.Zeng.Call" parent="android:Theme.Material.NoActionBar">
+        <item name="android:colorAccent">@color/green_light</item>
+        <item name="android:statusBarColor">@color/call_bg</item>
+        <item name="android:navigationBarColor">@color/call_bg</item>
+        <item name="android:windowBackground">@color/call_bg</item>
+    </style>
+    <style name="CallBtn">
+        <item name="android:layout_width">56dp</item>
+        <item name="android:layout_height">56dp</item>
+        <item name="android:padding">15dp</item>
+        <item name="android:scaleType">fitCenter</item>
+        <item name="android:background">@drawable/btn_round</item>
+    </style>
+    <style name="CallLabel">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">6dp</item>
+        <item name="android:textColor">#CCFFFFFF</item>
+        <item name="android:textSize">12sp</item>
+    </style>
+</resources>

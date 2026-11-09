@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent" android:background="@color/call_bg">
+
+    <!-- my own camera, full screen when the other side has no video (WhatsApp style) -->
+    <org.webrtc.SurfaceViewRenderer android:id="@+id/localBig"
+        android:layout_width="match_parent" android:layout_height="match_parent" android:visibility="gone" />
+
+    <!-- one tile per person; filled from code -->
+    <LinearLayout android:id="@+id/grid" android:layout_width="match_parent" android:layout_height="match_parent"
+        android:orientation="vertical" />
+
+    <!-- top: name + status -->
+    <LinearLayout android:id="@+id/header" android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:gravity="center_horizontal" android:orientation="vertical" android:paddingTop="48dp"
+        android:paddingBottom="16dp">
+        <TextView android:id="@+id/kind" android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:drawablePadding="6dp" android:gravity="center" android:textColor="#B3FFFFFF" android:textSize="14sp" />
+        <TextView android:id="@+id/name" android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_marginTop="8dp" android:shadowColor="#80000000" android:shadowRadius="6"
+            android:ellipsize="end" android:gravity="center" android:maxLines="2" android:paddingLeft="64dp"
+            android:paddingRight="64dp" android:textColor="@android:color/white" android:textSize="28sp" android:textStyle="bold" />
+        <TextView android:id="@+id/status" android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_marginTop="6dp" android:shadowColor="#80000000" android:shadowRadius="6"
+            android:textColor="#E6FFFFFF" android:textSize="17sp" />
+    </LinearLayout>
+
+    <ImageButton android:id="@+id/minimize" style="@style/CallBtn" android:layout_width="48dp" android:layout_height="48dp"
+        android:layout_gravity="top|start" android:layout_marginTop="36dp" android:layout_marginStart="12dp"
+        android:padding="12dp" android:background="@null" android:src="@drawable/ic_back" />
+
+    <ImageButton android:id="@+id/add" style="@style/CallBtn" android:layout_width="48dp" android:layout_height="48dp"
+        android:layout_gravity="top|end" android:layout_marginTop="36dp" android:layout_marginEnd="12dp"
+        android:padding="12dp" android:contentDescription="@string/add_person" android:src="@drawable/ic_person_add" />
+
+    <!-- small picture-in-picture: drag to a corner, tap to swap with the big view -->
+    <FrameLayout android:id="@+id/pipBox" android:layout_width="100dp" android:layout_height="140dp"
+        android:layout_gravity="top|end" android:layout_marginTop="120dp" android:layout_marginEnd="12dp"
+        android:background="@drawable/pip_bg" android:elevation="6dp" android:padding="2dp" android:visibility="gone">
+        <org.webrtc.SurfaceViewRenderer android:id="@+id/local"
+            android:layout_width="match_parent" android:layout_height="match_parent" />
+    </FrameLayout>
+
+    <!-- incoming: decline / answer -->
+    <LinearLayout android:id="@+id/incoming" android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:layout_gravity="bottom" android:gravity="center" android:paddingBottom="56dp">
+        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+            android:gravity="center_horizontal" android:orientation="vertical">
+            <ImageButton android:id="@+id/decline" style="@style/CallBtn" android:layout_width="72dp"
+                android:layout_height="72dp" android:padding="20dp" android:background="@drawable/btn_red"
+                android:src="@drawable/ic_call_end" />
+            <TextView style="@style/CallLabel" android:text="@string/decline" />
+        </LinearLayout>
+        <LinearLayout android:id="@+id/answerVideoBox" android:layout_width="0dp" android:layout_height="wrap_content"
+            android:layout_weight="1" android:gravity="center_horizontal" android:orientation="vertical">
+            <ImageButton android:id="@+id/answerVideo" style="@style/CallBtn" android:layout_width="72dp"
+                android:layout_height="72dp" android:padding="20dp" android:background="@drawable/btn_green"
+                android:src="@drawable/ic_videocam" />
+            <TextView style="@style/CallLabel" android:text="@string/answer_video" />
+        </LinearLayout>
+        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+            android:gravity="center_horizontal" android:orientation="vertical">
+            <ImageButton android:id="@+id/answer" style="@style/CallBtn" android:layout_width="72dp"
+                android:layout_height="72dp" android:padding="20dp" android:background="@drawable/btn_green"
+                android:src="@drawable/ic_call" />
+            <TextView android:id="@+id/answerLabel" style="@style/CallLabel" android:text="@string/answer" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- in call controls: one row, like WhatsApp -->
+    <LinearLayout android:id="@+id/controls" android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:layout_gravity="bottom" android:background="@drawable/controls_bg" android:baselineAligned="false"
+        android:gravity="center" android:paddingLeft="8dp" android:paddingTop="18dp" android:paddingRight="8dp"
+        android:paddingBottom="28dp">
+        <LinearLayout android:id="@+id/flipBox" android:layout_width="0dp" android:layout_height="wrap_content"
+            android:layout_weight="1" android:gravity="center_horizontal" android:orientation="vertical">
+            <ImageButton android:id="@+id/flip" style="@style/CallBtn" android:src="@drawable/ic_switch_camera" />
+            <TextView style="@style/CallLabel" android:text="@string/flip" />
+        </LinearLayout>
+        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+            android:gravity="center_horizontal" android:orientation="vertical">
+            <ImageButton android:id="@+id/video" style="@style/CallBtn" android:src="@drawable/ic_videocam" />
+            <TextView android:id="@+id/videoLabel" style="@style/CallLabel" android:text="@string/camera" />
+        </LinearLayout>
+        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+            android:gravity="center_horizontal" android:orientation="vertical">
+            <ImageButton android:id="@+id/speaker" style="@style/CallBtn" android:src="@drawable/ic_speaker" />
+            <TextView style="@style/CallLabel" android:text="@string/speaker" />
+        </LinearLayout>
+        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+            android:gravity="center_horizontal" android:orientation="vertical">
+            <ImageButton android:id="@+id/mute" style="@style/CallBtn" android:src="@drawable/ic_mic" />
+            <TextView style="@style/CallLabel" android:text="@string/mute" />
+        </LinearLayout>
+        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+            android:gravity="center_horizontal" android:orientation="vertical">
+            <ImageButton android:id="@+id/hangup" style="@style/CallBtn" android:padding="14dp"
+                android:background="@drawable/btn_red" android:src="@drawable/ic_call_end" />
+            <TextView style="@style/CallLabel" android:text="@string/hangup" />
+        </LinearLayout>
+    </LinearLayout>
+</FrameLayout>

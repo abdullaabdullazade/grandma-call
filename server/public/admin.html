@@ -1,0 +1,593 @@
+<!doctype html>
+<html lang="az">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Call Admin</title>
+<link rel="icon" href="icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --canvas:#f3f4f6;--card:#fff;--sunken:#f5f7fa;--hover:rgb(15 23 42/.04);--active:rgb(15 23 42/.07);
+  --hair:rgb(15 23 42/.07);--ring:inset 0 0 0 1px rgb(15 23 42/.12);--sheet:0 0 0 1px rgb(15 23 42/.07);
+  --lift:0 12px 28px -10px rgb(15 23 42/.26);
+  --t1:#0f172a;--t2:#334155;--t3:#475569;--mut:#64748b;
+  --accent:#d64126;--accent-h:#b9351d;--accent-ink:#c53a20;--tint-red:rgb(255 77 45/.1);
+  --green:#16a34a;--green-ink:#0f7234;--tint-green:rgb(22 163 74/.12);
+  --amber-ink:#92400e;--tint-amber:rgb(245 158 11/.14);--tint-slate:rgb(100 116 139/.12);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){
+  --canvas:#0b0d12;--card:#14171e;--sunken:#1a1e27;--hover:rgb(255 255 255/.04);--active:rgb(255 255 255/.08);
+  --hair:rgb(255 255 255/.08);--ring:inset 0 0 0 1px rgb(255 255 255/.14);--sheet:0 0 0 1px rgb(255 255 255/.07);
+  --lift:0 12px 28px -10px rgb(0 0 0/.6);
+  --t1:#f1f5f9;--t2:#cbd5e1;--t3:#94a3b8;--mut:#8590a2;
+  --accent:#e2553a;--accent-h:#ef6a50;--accent-ink:#ff8a70;--tint-red:rgb(255 77 45/.16);
+  --green-ink:#4ade80;--tint-green:rgb(34 197 94/.16);--amber-ink:#fbbf24;--tint-amber:rgb(245 158 11/.16);--tint-slate:rgb(148 163 184/.16);
+}}
+*{box-sizing:border-box;margin:0}
+html,body{background:var(--canvas)}
+body{color:var(--t1);font:500 13px/1.5 Manrope,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+button,input,select{font:inherit;color:inherit}
+svg{width:16px;height:16px;flex:none;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+[hidden]{display:none!important}
+
+.shell{display:flex;min-height:100dvh}
+.rail{position:sticky;top:0;height:100dvh;padding:8px 0 8px 8px;flex:none}
+.sheet{background:var(--card);border-radius:12px;box-shadow:var(--sheet)}
+.rail .sheet{width:232px;height:100%;display:flex;flex-direction:column}
+.brand{display:flex;align-items:center;gap:8px;height:48px;padding:0 16px}
+.brand img{width:26px;height:26px;border-radius:7px}
+.brand b{font-size:15px;font-weight:700;letter-spacing:-.01em}
+.pill{display:inline-flex;align-items:center;gap:5px;height:20px;padding:0 8px;border-radius:999px;font-size:11px;font-weight:600;white-space:nowrap}
+.pill.accent{background:var(--tint-red);color:var(--accent-ink)}
+.pill.green{background:var(--tint-green);color:var(--green-ink)}
+.pill.amber{background:var(--tint-amber);color:var(--amber-ink)}
+.pill.slate{background:var(--tint-slate);color:var(--t3)}
+.brand .pill{margin-left:auto}
+.meta{font-size:11px;font-weight:600;color:var(--mut);text-transform:uppercase;letter-spacing:.04em}
+nav{display:flex;flex-direction:column;gap:2px;padding:8px 12px;flex:1}
+nav .meta{padding:4px 12px 6px}
+.nav{display:flex;align-items:center;gap:12px;height:36px;padding:0 12px;border:0;background:none;border-radius:6px;color:var(--t2);cursor:pointer;text-align:left;width:100%;transition:background .15s}
+.nav:hover{background:var(--hover);color:var(--t1)}
+.nav.on{background:var(--active);color:var(--t1)}
+.nav .count{margin-left:auto;font-size:11px;color:var(--mut)}
+.rail-foot{padding:0 12px 12px}
+.main{flex:1;min-width:0;padding:8px}
+.main>.sheet{min-height:calc(100dvh - 16px);padding:24px}
+.topbar{display:none}
+
+.head{display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap}
+.head h1{font-size:20px;font-weight:600;letter-spacing:-.015em}
+.head .sub{color:var(--mut)}
+.head .right{margin-left:auto;display:flex;gap:8px;align-items:center}
+.live{display:inline-flex;align-items:center;gap:6px;color:var(--mut);font-size:12px}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--mut);flex:none}
+.dot.on{background:var(--green);box-shadow:0 0 0 3px var(--tint-green)}
+
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}
+.stat{background:var(--sunken);border-radius:10px;padding:14px 16px}
+.stat .v{font-size:24px;font-weight:600;letter-spacing:-.02em;line-height:1.15;margin-top:6px}
+.stat .h{font-size:12px;color:var(--mut);margin-top:2px}
+
+.panel{border-radius:10px;box-shadow:var(--ring);overflow:hidden}
+.panel-head{display:flex;align-items:center;gap:8px;padding:12px 16px;border-bottom:1px solid var(--hair);flex-wrap:wrap}
+.panel-head h2{font-size:14px;font-weight:600}
+.panel-head .right{margin-left:auto;display:flex;gap:8px;align-items:center}
+
+.tbl{width:100%;border-collapse:collapse}
+.tbl th{text-align:left;font-size:11px;font-weight:600;color:var(--mut);text-transform:uppercase;letter-spacing:.04em;padding:9px 12px;background:var(--sunken);white-space:nowrap}
+.tbl td{padding:10px 12px;border-top:1px solid var(--hair);font-size:13px;vertical-align:middle}
+.tbl tr:hover td{background:var(--hover)}
+.tbl .num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.muted{color:var(--mut)}
+.small{font-size:12px}
+.who{display:flex;align-items:center;gap:10px;min-width:0}
+.av{width:32px;height:32px;border-radius:999px;display:grid;place-items:center;font-size:13px;font-weight:700;color:#fff;flex:none;position:relative}
+.av .st{position:absolute;right:-1px;bottom:-1px;width:10px;height:10px;border-radius:50%;background:var(--green);box-shadow:0 0 0 2px var(--card)}
+.who .n{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.arrow{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.arrow svg{width:13px;height:13px;color:var(--mut)}
+.acts{display:flex;gap:4px;justify-content:flex-end}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:32px;padding:0 12px;border-radius:6px;border:0;background:var(--card);box-shadow:var(--ring);cursor:pointer;font-weight:600;font-size:13px;white-space:nowrap;transition:background .15s;color:var(--t1)}
+.btn:hover{background:var(--hover)}
+.btn.primary{background:var(--accent);color:#fff;box-shadow:none}
+.btn.primary:hover{background:var(--accent-h)}
+.btn.ghost{box-shadow:none;background:none;padding:0 8px;color:var(--t3)}
+.btn.ghost:hover{background:var(--hover);color:var(--t1)}
+.btn.icon{width:32px;padding:0}
+.btn:disabled{opacity:.5;cursor:default}
+.input{height:34px;padding:0 12px;border-radius:6px;border:0;background:var(--card);box-shadow:var(--ring);outline:none;min-width:0}
+.input:focus{box-shadow:inset 0 0 0 1.5px var(--accent)}
+.search{position:relative}
+.search svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--mut)}
+.search .input{padding-left:32px;width:240px}
+.seg{display:inline-flex;background:var(--sunken);border-radius:7px;padding:2px;gap:2px}
+.seg button{height:28px;padding:0 10px;border:0;background:none;border-radius:5px;cursor:pointer;color:var(--t3);font-weight:600;font-size:12px}
+.seg button.on{background:var(--card);color:var(--t1);box-shadow:0 1px 2px rgb(15 23 42/.12)}
+.empty{padding:40px 16px;text-align:center;color:var(--mut)}
+.pager{display:flex;align-items:center;gap:8px;justify-content:flex-end;padding:10px 12px;border-top:1px solid var(--hair);color:var(--mut);font-size:12px}
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.field{padding:16px;display:flex;flex-direction:column;gap:10px}
+.field p{color:var(--mut)}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.code{font:600 26px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.14em}
+.steps{padding-left:18px;color:var(--t3);display:flex;flex-direction:column;gap:4px}
+
+.login{min-height:100dvh;display:grid;place-items:center;padding:16px}
+.login .sheet{width:100%;max-width:360px;padding:28px}
+.login img{width:44px;height:44px;border-radius:11px;margin-bottom:16px}
+.login h1{font-size:20px;font-weight:600;letter-spacing:-.015em}
+.login p{color:var(--mut);margin:4px 0 20px}
+.login .input{width:100%;height:40px;margin-bottom:10px}
+.login .btn{width:100%;height:40px}
+.err{color:var(--accent-ink);font-size:12px;min-height:18px;margin-top:8px}
+
+.scrim{position:fixed;inset:0;background:rgb(2 6 23/.45);display:grid;place-items:center;padding:16px;z-index:50;animation:fade .12s}
+.dialog{width:100%;max-width:400px;padding:20px;box-shadow:var(--lift)}
+.dialog h3{font-size:15px;font-weight:600;margin-bottom:6px}
+.dialog p{color:var(--t3);margin-bottom:14px}
+.dialog .input{width:100%;margin-bottom:14px}
+.dialog .row{justify-content:flex-end}
+.toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:var(--t1);color:var(--card);padding:9px 14px;border-radius:8px;font-weight:600;box-shadow:var(--lift);z-index:60;animation:fade .15s}
+@keyframes fade{from{opacity:0}}
+
+@media (max-width:960px){
+  .rail{display:none}
+  .topbar{display:flex;align-items:center;gap:4px;padding:8px 8px 0;overflow-x:auto}
+  .topbar .nav{width:auto;height:34px;flex:none}
+  .topbar .count{display:none}
+  .main>.sheet{padding:16px;min-height:calc(100dvh - 58px)}
+  .stats{grid-template-columns:1fr 1fr}
+  .grid2{grid-template-columns:1fr}
+  .hide-sm{display:none}
+  .search{flex:1}
+  .search .input{width:100%}
+}
+@media (max-width:600px){.tbl .hide-xs{display:none}.panel-head .right{margin-left:0;width:100%}}
+</style>
+</head>
+<body>
+
+<div class="login" id="login" hidden>
+  <form class="sheet" id="loginForm">
+    <img src="icon.png" alt="">
+    <h1>Call Admin</h1>
+    <p>Davam etmək üçün admin şifrəsini daxil edin.</p>
+    <input class="input" id="pw" type="password" placeholder="Şifrə" autocomplete="current-password">
+    <button class="btn primary" type="submit">Daxil ol</button>
+    <div class="err" id="loginErr"></div>
+  </form>
+</div>
+
+<div class="shell" id="app" hidden>
+  <aside class="rail">
+    <div class="sheet">
+      <div class="brand"><img src="icon.png" alt=""><b>Call</b><span class="pill accent">Admin</span></div>
+      <nav id="nav"></nav>
+      <div class="rail-foot">
+        <button class="nav" id="logout"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>Çıxış</button>
+      </div>
+    </div>
+  </aside>
+  <div class="main">
+    <div class="topbar" id="topnav"></div>
+    <div class="sheet" id="view"></div>
+  </div>
+</div>
+
+<script>
+'use strict';
+const $ = s => document.querySelector(s);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+const I = {
+  home:'<path d="M3 9.5 12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',
+  dev:'<rect x="6" y="2" width="12" height="20" rx="2"/><path d="M11 18h2"/>',
+  call:'<path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/>',
+  video:'<path d="m16 13 5.2 3.1a.5.5 0 0 0 .8-.4V8.3a.5.5 0 0 0-.8-.4L16 11"/><rect x="2" y="6" width="14" height="12" rx="2"/>',
+  up:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/>',
+  users:'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>',
+  move:'<path d="M5 9l-3 3 3 3M9 5l3-3 3 3M15 19l-3 3-3-3M19 9l3 3-3 3M2 12h20M12 2v20"/>',
+  refresh:'<path d="M21 12a9 9 0 1 1-2.6-6.4L21 8M21 3v5h-5"/>',
+  key:'<circle cx="7.5" cy="15.5" r="5.5"/><path d="m21 2-9.6 9.6M15.5 7.5l3 3L22 7l-3-3"/>',
+  search:'<circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/>',
+  arrow:'<path d="M5 12h14M13 6l6 6-6 6"/>',
+  edit:'<path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>',
+  ban:'<circle cx="12" cy="12" r="9"/><path d="m5.7 5.7 12.6 12.6"/>',
+  unban:'<path d="M20 6 9 17l-5-5"/>',
+  trash:'<path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/>',
+  dl:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>',
+  copy:'<rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>',
+};
+const ico = k => `<svg viewBox="0 0 24 24">${I[k]}</svg>`;
+
+const VIEWS = [
+  { id: 'overview', name: 'Ümumi baxış', icon: 'home' },
+  { id: 'groups', name: 'Qruplar', icon: 'users' },
+  { id: 'devices', name: 'Cihazlar', icon: 'dev' },
+  { id: 'calls', name: 'Zənglər', icon: 'call' },
+  { id: 'update', name: 'Tətbiq', icon: 'up' },
+];
+const ST = { answered: ['Danışıldı', 'green'], missed: ['Buraxılmış', 'accent'], declined: ['Rədd edildi', 'accent'], busy: ['Məşğul', 'amber'], unavailable: ['Əlçatan deyil', 'slate'] };
+const COLORS = ['#00A884', '#1E88E5', '#8E24AA', '#F4511E', '#6D4C41', '#00897B', '#D81B60', '#3949AB'];
+const PAGE = 25;
+
+let data = null, lastJSON = '', view = 'overview';
+const ui = { q: '', filter: 'all', page: 0, group: '' };
+
+// ---------- formatting ----------
+function hash(s) { let h = 0; for (const c of s) h = (h * 31 + c.charCodeAt(0)) | 0; return Math.abs(h); }
+function avatar(id, name, online) {
+  return `<span class="av" style="background:${COLORS[hash(id || name) % COLORS.length]}">${esc((name || '?').trim().charAt(0).toUpperCase())}${online ? '<span class="st"></span>' : ''}</span>`;
+}
+function dur(s) {
+  if (!s) return '—';
+  const h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), x = s % 60;
+  if (h) return `${h} saat ${m} dəq`;
+  if (m) return `${m} dəq ${x} san`;
+  return `${x} san`;
+}
+function ago(t) {
+  if (!t) return '—';
+  const s = Math.floor(Date.now() / 1000) - t;
+  if (s < 60) return 'indicə';
+  if (s < 3600) return Math.floor(s / 60) + ' dəq əvvəl';
+  if (s < 86400) return Math.floor(s / 3600) + ' saat əvvəl';
+  if (s < 7 * 86400) return Math.floor(s / 86400) + ' gün əvvəl';
+  return new Date(t * 1000).toLocaleDateString('az');
+}
+function when(t) {
+  const d = new Date(t * 1000), now = new Date();
+  const hm = d.toLocaleTimeString('az', { hour: '2-digit', minute: '2-digit' });
+  if (d.toDateString() === now.toDateString()) return 'Bu gün ' + hm;
+  const y = new Date(now); y.setDate(now.getDate() - 1);
+  if (d.toDateString() === y.toDateString()) return 'Dünən ' + hm;
+  return d.toLocaleDateString('az', { day: '2-digit', month: '2-digit', year: 'numeric' }) + ' ' + hm;
+}
+function devName(d) {
+  if (!d) return 'Naməlum cihaz';
+  if (!d.includes('Mozilla')) return d;
+  const a = d.match(/Android [\d.]+/); if (a) return 'Brauzer · ' + a[0];
+  if (/iPhone|iPad/.test(d)) return 'Brauzer · iOS';
+  if (/Windows/.test(d)) return 'Brauzer · Windows';
+  if (/Mac OS/.test(d)) return 'Brauzer · Mac';
+  return 'Brauzer';
+}
+const statusPill = s => { const [t, c] = ST[s] || [s, 'slate']; return `<span class="pill ${c}">${t}</span>`; };
+
+// ---------- api ----------
+async function api(body) {
+  const r = await fetch('api', body ? { method: 'POST', body: JSON.stringify(body) } : { cache: 'no-store' });
+  if (r.status === 401) { showLogin(); throw new Error('auth'); }
+  if (!r.ok) throw new Error((await r.text()).trim() || 'Xəta baş verdi');
+  return r;
+}
+async function load(force) {
+  if (document.hidden && !force) return;
+  if (document.querySelector('.scrim') && !force) return;   // don't redraw under an open dialog
+  const fileIn = $('#apkFile');
+  const toneIn = $('#toneFile');
+  if (!force && ((fileIn && (fileIn.files.length || $('#upBtn').disabled)) || (toneIn && toneIn.files.length))) return; // keep a picked file
+  let txt;
+  try { txt = await (await api()).text(); } catch { return; }
+  if (!force && txt === lastJSON) return;                  // nothing changed: leave the DOM alone
+  lastJSON = txt; data = JSON.parse(txt);
+  $('#login').hidden = true; $('#app').hidden = false;
+  renderNav(); render();
+}
+async function act(action, id, value, msg) {
+  try { await api({ action, id, value }); toast(msg); } catch (e) { if (e.message !== 'auth') toast(e.message || 'Xəta baş verdi'); }
+  load(true);
+}
+
+// ---------- login ----------
+function showLogin() { $('#app').hidden = true; $('#login').hidden = false; $('#pw').focus(); }
+$('#loginForm').onsubmit = async e => {
+  e.preventDefault();
+  const r = await fetch('api/login', { method: 'POST', body: JSON.stringify({ password: $('#pw').value }) });
+  if (!r.ok) { $('#loginErr').textContent = r.status === 429 ? 'Çox cəhd. 15 dəqiqə sonra yoxlayın.' : 'Şifrə səhvdir.'; return; }
+  $('#pw').value = ''; $('#loginErr').textContent = ''; load(true);
+};
+$('#logout').onclick = async () => { await fetch('api/logout', { method: 'POST' }); data = null; lastJSON = ''; showLogin(); };
+
+// ---------- nav ----------
+function renderNav() {
+  const counts = { groups: data.groups.length, devices: data.users.length, calls: data.calls.length };
+  const html = VIEWS.map(v => `<button class="nav${v.id === view ? ' on' : ''}" data-view="${v.id}">${ico(v.icon)}${v.name}${counts[v.id] != null ? `<span class="count">${counts[v.id]}</span>` : ''}</button>`).join('');
+  $('#nav').innerHTML = '<div class="meta" style="padding:4px 12px 6px">İdarəetmə</div>' + html;
+  $('#topnav').innerHTML = html;
+}
+document.addEventListener('click', e => {
+  const n = e.target.closest('[data-view]');
+  if (!n) return;
+  view = n.dataset.view; ui.page = 0; ui.q = ''; ui.filter = 'all'; ui.group = '';
+  history.replaceState(null, '', '#' + view);
+  renderNav(); render(); window.scrollTo(0, 0);
+});
+
+// ---------- views ----------
+function render() {
+  const y = window.scrollY;
+  $('#view').innerHTML = ({ overview, groups, devices, calls, update }[view] || overview)();
+  window.scrollTo(0, y);
+  bind();
+}
+
+function header(title, sub) {
+  const on = data.users.filter(u => u.online).length;
+  return `<div class="head"><div><h1>${title}</h1>${sub ? `<div class="sub">${sub}</div>` : ''}</div>
+    <div class="right"><span class="live"><span class="dot${on ? ' on' : ''}"></span>${on} onlayn</span></div></div>`;
+}
+
+function overview() {
+  const u = data.users, c = data.calls;
+  const start = new Date(); start.setHours(0, 0, 0, 0);
+  const today = c.filter(x => x.started * 1000 >= start.getTime());
+  const talk = c.reduce((a, x) => a + x.duration, 0);
+  const missed = c.filter(x => x.status !== 'answered').length;
+  const top = u.filter(x => x.talk).sort((a, b) => b.talk - a.talk).slice(0, 5);
+  return header('Ümumi baxış', 'Ailə zəng şəbəkəsinin vəziyyəti') + `
+  <div class="stats">
+    <div class="stat"><div class="meta">Cihazlar</div><div class="v">${u.length}</div><div class="h">${data.groups.length} qrup · ${u.filter(x => x.online).length} onlayn · ${u.filter(x => x.banned).length} bloklu</div></div>
+    <div class="stat"><div class="meta">Bu gün</div><div class="v">${today.length}</div><div class="h">zəng</div></div>
+    <div class="stat"><div class="meta">Ümumi danışıq</div><div class="v">${Math.round(talk / 60)}</div><div class="h">dəqiqə</div></div>
+    <div class="stat"><div class="meta">Cavabsız</div><div class="v">${missed}</div><div class="h">${c.length ? Math.round(missed / c.length * 100) : 0}% zənglərdən</div></div>
+  </div>
+  <div class="grid2">
+    <div class="panel"><div class="panel-head"><h2>Son zənglər</h2><div class="right"><button class="btn ghost" data-view="calls">Hamısı</button></div></div>
+      ${c.length ? `<table class="tbl"><tbody>${c.slice(0, 7).map(x => callRow(x, true)).join('')}</tbody></table>` : '<div class="empty">Hələ zəng yoxdur</div>'}</div>
+    <div class="panel"><div class="panel-head"><h2>Ən çox danışanlar</h2></div>
+      ${top.length ? `<table class="tbl"><tbody>${top.map(x => `<tr><td><div class="who">${avatar(x.id, x.name, x.online)}<span class="n">${esc(x.name)}</span></div></td><td class="num">${dur(x.talk)}</td></tr>`).join('')}</tbody></table>` : '<div class="empty">Hələ danışıq yoxdur</div>'}</div>
+  </div>`;
+}
+
+function dlLink() { return data.download ? location.origin + data.download : ''; }
+function groupName(id) { const g = data.groups.find(x => x.id === id); return g ? g.name : '—'; }
+
+function groups() {
+  const link = dlLink();
+  const cards = data.groups.map(g => `
+    <div class="panel">
+      <div class="panel-head"><h2>${esc(g.name)}</h2><span class="pill slate">${g.members} cihaz</span>${g.online ? `<span class="pill green">${g.online} onlayn</span>` : ''}
+        <div class="right">
+          <button class="btn ghost icon" title="Adı dəyiş" data-gact="group_rename" data-id="${g.id}">${ico('edit')}</button>
+          <button class="btn ghost icon" title="Sil" data-gact="group_delete" data-id="${g.id}">${ico('trash')}</button>
+        </div></div>
+      <div class="field">
+        <div class="meta">Qoşulma kodu</div>
+        <div class="row"><span class="code">${esc(g.code)}</span>
+          <button class="btn ghost icon" title="Kopyala" data-copy="${esc(g.code)}">${ico('copy')}</button>
+          <div style="margin-left:auto" class="row">
+            <button class="btn" data-gact="group_code" data-id="${g.id}">${ico('edit')}Dəyiş</button>
+            <button class="btn" data-gact="group_newcode" data-id="${g.id}" title="Təsadüfi yeni kod">${ico('refresh')}Yeni kod</button>
+          </div></div>
+        <p class="small">Bu kodla qoşulanlar yalnız bu qrupun üzvlərini görür və onlara zəng edə bilir.</p>
+      </div>
+    </div>`).join('');
+  return header('Qruplar', 'Hər qrupun öz kodu və öz kontakt siyahısı var') + `
+  <div class="row" style="margin-bottom:12px"><button class="btn primary" id="newGroup">${ico('plus')}Yeni qrup</button></div>
+  <div class="grid2" style="margin-bottom:12px">${cards}</div>
+  <div class="panel"><div class="panel-head"><h2>Necə qoşulurlar</h2></div>
+    <div class="field">
+      <ol class="steps">
+        <li>Telefonda APK linkini açıb tətbiqi yükləyirlər və quraşdırırlar.</li>
+        <li>Call-u açıb <b>adlarını</b> və <b>qrupun kodunu</b> yazırlar.</li>
+        <li>Qrupdakı hər kəs bir-birini kontaktlarda görür və zəng edə bilir.</li>
+      </ol>
+      ${link && data.app.versionCode ? `<div class="row"><a class="btn primary" href="${esc(link)}" style="text-decoration:none">${ico('dl')}APK yüklə</a>
+        <button class="btn" data-copy="${esc(link)}">${ico('copy')}Linki kopyala</button></div>
+      <p class="small">${esc(link)}</p>` : `<p class="small">Hələ APK yüklənməyib. <a href="#update" data-view="update">Yeniləmə</a> bölməsindən yükləyin.</p>`}
+    </div></div>`;
+}
+
+function devices() {
+  const q = ui.q.toLowerCase();
+  let list = data.users;
+  if (ui.filter === 'online') list = list.filter(u => u.online);
+  if (ui.filter === 'banned') list = list.filter(u => u.banned);
+  if (ui.group) list = list.filter(u => u.group === ui.group);
+  if (q) list = list.filter(u => (u.name + ' ' + u.device + ' ' + u.ip).toLowerCase().includes(q));
+  const seg = [['all', 'Hamısı'], ['online', 'Onlayn'], ['banned', 'Bloklu']].map(([k, t]) => `<button data-filter="${k}" class="${ui.filter === k ? 'on' : ''}">${t}</button>`).join('');
+  return header('Cihazlar', 'Qrup kodu ilə qoşulan bütün telefonlar') + `
+  <div class="panel">
+    <div class="panel-head"><div class="seg">${seg}</div>
+      <div class="right"><select class="input" id="gsel"><option value="">Bütün qruplar</option>${data.groups.map(g => `<option value="${g.id}"${ui.group === g.id ? ' selected' : ''}>${esc(g.name)}</option>`).join('')}</select>
+        <label class="search">${ico('search')}<input class="input" id="q" placeholder="Ad, model, IP…" value="${esc(ui.q)}"></label></div></div>
+    ${list.length ? `<table class="tbl">
+      <thead><tr><th>Ad</th><th class="hide-xs">Qrup</th><th class="hide-xs">Cihaz</th><th class="hide-sm">IP</th><th class="hide-sm">Qoşulub</th><th>Son aktivlik</th><th class="num hide-xs">Danışıq</th><th></th></tr></thead>
+      <tbody>${list.map(u => `<tr>
+        <td><div class="who">${avatar(u.id, u.name, u.online)}<div style="min-width:0"><div class="n">${esc(u.name)}</div>${u.banned ? '<span class="pill accent">Bloklu</span>' : ''}</div></div></td>
+        <td class="hide-xs"><span class="pill slate">${esc(groupName(u.group))}</span></td>
+        <td class="hide-xs"><div>${esc(devName(u.device))}${u.version ? ` <span class="pill slate">v${esc(u.version)}</span>` : ''}</div><div class="muted small" title="${esc(u.deviceId)}">ID ${esc((u.deviceId || '—').slice(0, 12))}</div></td>
+        <td class="hide-sm muted">${esc(u.ip || '—')}</td>
+        <td class="hide-sm muted">${ago(u.joined)}</td>
+        <td>${u.online ? '<span class="pill green">Onlayn</span>' : `<span class="muted">${ago(u.lastSeen)}</span>`}</td>
+        <td class="num hide-xs">${dur(u.talk)}</td>
+        <td><div class="acts">
+          <button class="btn ghost icon" title="Adı dəyiş" data-act="rename" data-id="${u.id}">${ico('edit')}</button>
+          ${data.groups.length > 1 ? `<button class="btn ghost icon" title="Başqa qrupa köçür" data-act="move" data-id="${u.id}">${ico('move')}</button>` : ''}
+          ${u.banned ? `<button class="btn ghost icon" title="Bandan çıxar" data-act="unban" data-id="${u.id}">${ico('unban')}</button>`
+                     : `<button class="btn ghost icon" title="Ban et" data-act="ban" data-id="${u.id}">${ico('ban')}</button>`}
+          <button class="btn ghost icon" title="Sil" data-act="delete" data-id="${u.id}">${ico('trash')}</button>
+        </div></td></tr>`).join('')}</tbody></table>`
+      : `<div class="empty">${data.users.length ? 'Heç nə tapılmadı' : 'Hələ heç kim qoşulmayıb. “Qruplar” bölməsindəki kodu göndərin.'}</div>`}
+  </div>`;
+}
+
+function callRow(c, compact) {
+  return `<tr>
+    <td><div class="arrow">${c.video ? ico('video') : ico('call')}<b>${esc(c.from)}</b>${ico('arrow')}<b>${esc(c.to)}</b>${c.group ? ' <span class="pill slate">Qrup</span>' : ''}</div>${compact ? `<div class="muted small">${when(c.started)}</div>` : ''}</td>
+    ${compact ? '' : `<td class="muted hide-xs">${when(c.started)}</td>`}
+    <td>${statusPill(c.status)}</td>
+    <td class="num">${c.duration ? dur(c.duration) : '<span class="muted">—</span>'}</td></tr>`;
+}
+
+function calls() {
+  let list = data.calls;
+  if (ui.filter === 'answered') list = list.filter(c => c.status === 'answered');
+  if (ui.filter === 'missed') list = list.filter(c => c.status !== 'answered');
+  if (ui.filter === 'video') list = list.filter(c => c.video);
+  const q = ui.q.toLowerCase();
+  if (q) list = list.filter(c => (c.from + ' ' + c.to).toLowerCase().includes(q));
+  const pages = Math.max(1, Math.ceil(list.length / PAGE));
+  ui.page = Math.min(ui.page, pages - 1);
+  const slice = list.slice(ui.page * PAGE, ui.page * PAGE + PAGE);
+  const talk = list.reduce((a, c) => a + c.duration, 0);
+  const seg = [['all', 'Hamısı'], ['answered', 'Danışılan'], ['missed', 'Cavabsız'], ['video', 'Görüntülü']].map(([k, t]) => `<button data-filter="${k}" class="${ui.filter === k ? 'on' : ''}">${t}</button>`).join('');
+  return header('Zənglər', `${list.length} zəng · cəmi ${dur(talk)}`) + `
+  <div class="panel">
+    <div class="panel-head"><div class="seg">${seg}</div>
+      <div class="right"><label class="search">${ico('search')}<input class="input" id="q" placeholder="Ad axtar…" value="${esc(ui.q)}"></label></div></div>
+    ${slice.length ? `<table class="tbl"><thead><tr><th>Kim → kimə</th><th class="hide-xs">Vaxt</th><th>Status</th><th class="num">Müddət</th></tr></thead>
+      <tbody>${slice.map(c => callRow(c, false)).join('')}</tbody></table>
+      ${pages > 1 ? `<div class="pager">${ui.page * PAGE + 1}–${ui.page * PAGE + slice.length} / ${list.length}
+        <button class="btn" data-page="-1" ${ui.page ? '' : 'disabled'}>Əvvəlki</button><button class="btn" data-page="1" ${ui.page < pages - 1 ? '' : 'disabled'}>Növbəti</button></div>` : ''}`
+      : '<div class="empty">Zəng tapılmadı</div>'}
+  </div>`;
+}
+
+function update() {
+  const a = data.app || {};
+  const t = data.ringtone;
+  return header('Tətbiq', 'Versiya yeniləmələri və zəng səsi — dəyişikliklər bütün telefonlara avtomatik gedir') + `
+  <div class="grid2">
+    <div class="panel"><div class="panel-head"><h2>Hazırkı versiya</h2></div>
+      <div class="field">${a.versionCode ? `
+        <div class="row"><span class="code" style="letter-spacing:0">${esc(a.versionName)}</span><span class="pill slate">build ${a.versionCode}</span></div>
+        <p>${ago(a.uploaded)} yüklənib · ${(a.size / 1048576).toFixed(1)} MB</p>
+        ${a.notes ? `<p style="color:var(--t2)">${esc(a.notes)}</p>` : ''}
+        <p class="small" style="word-break:break-all">SHA-256 ${esc(a.sha256)}</p>` : '<p>Serverdə hələ APK yoxdur.</p>'}
+      </div></div>
+    <div class="panel"><div class="panel-head"><h2>Yeni versiya göndər</h2></div>
+      <form class="field" id="upForm">
+        <p>Eyni açarla imzalanmış və <b>versionCode</b>-u daha böyük olan APK seçin. Telefonlar dərhal bildiriş alacaq, "Yenilə" düyməsinə basıb quraşdıracaqlar.</p>
+        <input class="input" type="file" id="apkFile" accept=".apk" style="padding-top:6px">
+        <input class="input" id="notes" placeholder="Nə dəyişib? (istəyə görə)" maxlength="500">
+        <div class="row"><button class="btn primary" id="upBtn">${ico('up')}Yüklə və göndər</button><span class="muted small" id="upStatus"></span></div>
+      </form></div>
+  </div>
+  <div class="panel" style="margin-top:12px"><div class="panel-head"><h2>Zəng səsi</h2>${t && t.sha256 ? '<span class="pill green">Xüsusi səs</span>' : '<span class="pill slate">Telefonun öz səsi</span>'}</div>
+    <form class="field" id="toneForm">
+      <p>Zəng gələndə bütün telefonlarda çalacaq səs. MP3 və ya M4A, maksimum 5 MB (köhnə telefonlar başqa formatları çala bilmir).</p>
+      ${t && t.sha256 ? `<div class="row"><b>${esc(t.name)}</b><span class="muted small">${(t.size / 1024).toFixed(0)} KB</span></div>
+        <audio controls preload="none" src="api/ringtone?v=${esc(t.sha256.slice(0, 8))}" style="width:100%;max-width:420px"></audio>` : ''}
+      <input class="input" type="file" id="toneFile" accept=".mp3,.m4a,.aac,audio/mpeg,audio/mp4" style="padding-top:6px">
+      <div class="row"><button class="btn primary" id="toneBtn">${ico('up')}Səsi qoy</button>
+        ${t && t.sha256 ? `<button type="button" class="btn" id="toneReset">Telefonun öz səsinə qaytar</button>` : ''}
+        <span class="muted small" id="toneStatus"></span></div>
+    </form></div>`;
+}
+
+function uploadTone(e) {
+  e.preventDefault();
+  const f = $('#toneFile').files[0];
+  if (!f) { toast('Audio faylı seçin'); return; }
+  if (f.size > 5 * 1048576) { toast('Fayl 5 MB-dan böyükdür'); return; }
+  const fd = new FormData(); fd.append('audio', f);
+  $('#toneBtn').disabled = true; $('#toneStatus').textContent = 'Yüklənir…';
+  fetch('api/ringtone', { method: 'POST', body: fd }).then(async r => {
+    $('#toneBtn').disabled = false;
+    if (r.ok) { $('#toneStatus').textContent = ''; toast('Zəng səsi bütün telefonlara göndərildi'); load(true); }
+    else if (r.status === 401) showLogin();
+    else $('#toneStatus').textContent = (await r.text()) || 'Xəta';
+  }, () => { $('#toneBtn').disabled = false; $('#toneStatus').textContent = 'Bağlantı xətası'; });
+}
+
+function upload(e) {
+  e.preventDefault();
+  const f = $('#apkFile').files[0];
+  if (!f) { toast('APK faylını seçin'); return; }
+  const fd = new FormData();
+  fd.append('apk', f); fd.append('notes', $('#notes').value);
+  const x = new XMLHttpRequest();
+  x.open('POST', 'api/upload');
+  $('#upBtn').disabled = true;
+  x.upload.onprogress = ev => { if (ev.lengthComputable) $('#upStatus').textContent = Math.round(ev.loaded / ev.total * 100) + '%'; };
+  x.onload = () => {
+    $('#upBtn').disabled = false;
+    if (x.status === 200) { toast('Yeni versiya göndərildi'); load(true); }
+    else if (x.status === 401) showLogin();
+    else $('#upStatus').textContent = x.responseText || 'Xəta';
+  };
+  x.onerror = () => { $('#upBtn').disabled = false; $('#upStatus').textContent = 'Bağlantı xətası'; };
+  x.send(fd);
+}
+
+// ---------- events ----------
+let qTimer;
+function bind() {
+  const q = $('#q');
+  if (q) q.oninput = () => {
+    clearTimeout(qTimer);
+    qTimer = setTimeout(() => { ui.q = q.value; ui.page = 0; const p = q.selectionStart; render(); const n = $('#q'); n.focus(); n.setSelectionRange(p, p); }, 150);
+  };
+  document.querySelectorAll('[data-filter]').forEach(b => b.onclick = () => { ui.filter = b.dataset.filter; ui.page = 0; render(); });
+  document.querySelectorAll('[data-page]').forEach(b => b.onclick = () => { ui.page += +b.dataset.page; render(); window.scrollTo(0, 0); });
+  document.querySelectorAll('[data-act]').forEach(b => b.onclick = () => onAction(b.dataset.act, b.dataset.id));
+  const copy = (txt, msg) => navigator.clipboard.writeText(txt).then(() => toast(msg), () => toast(txt));
+  document.querySelectorAll('[data-copy]').forEach(b => b.onclick = () => copy(b.dataset.copy, 'Kopyalandı'));
+  document.querySelectorAll('[data-gact]').forEach(b => b.onclick = () => onGroup(b.dataset.gact, b.dataset.id));
+  const ng = $('#newGroup');
+  if (ng) ng.onclick = () => dialog({ title: 'Yeni qrup', text: 'Qrupa ad verin. Qoşulma kodu avtomatik yaradılacaq.', input: '', ok: 'Yarat', run: v => v && act('group_create', '', v, 'Qrup yaradıldı') });
+  const gs = $('#gsel'); if (gs) gs.onchange = () => { ui.group = gs.value; render(); };
+  const uf = $('#upForm'); if (uf) uf.onsubmit = upload;
+  const tf = $('#toneForm'); if (tf) tf.onsubmit = uploadTone;
+  const tr = $('#toneReset'); if (tr) tr.onclick = () => dialog({ title: 'Standart səsə qaytarılsın?', text: 'Telefonlar öz zəng səslərini çalacaq.', ok: 'Qaytar',
+    run: async () => { await fetch('api/ringtone', { method: 'DELETE' }); toast('Standart səs qaytarıldı'); load(true); } });
+}
+
+function onGroup(a, id) {
+  const g = data.groups.find(x => x.id === id); if (!g) return;
+  if (a === 'group_rename') dialog({ title: 'Qrupun adı', input: g.name, ok: 'Saxla', run: v => v && act('group_rename', id, v, 'Ad dəyişdi') });
+  if (a === 'group_code') dialog({ title: 'Qoşulma kodu', text: 'Yeni kodu yazın (ən azı 4 simvol). Qoşulmuş cihazlar qrupda qalır.', input: g.code, ok: 'Saxla', run: v => v && act('group_code', id, v, 'Kod dəyişdi') });
+  if (a === 'group_newcode') dialog({ title: `“${g.name}” üçün yeni kod?`, text: 'Köhnə kod işləməyəcək. Qoşulmuş cihazlar qrupda qalır.', ok: 'Yeni kod yarat', run: () => act('group_code', id, '', 'Yeni kod yaradıldı') });
+  if (a === 'group_delete') dialog({ title: `“${g.name}” silinsin?`, text: g.members ? 'Qrupda cihazlar var. Əvvəlcə onları başqa qrupa köçürün və ya silin.' : 'Qrup və onun kodu silinəcək.', ok: 'Sil', run: () => act('group_delete', id, '', 'Qrup silindi') });
+}
+
+function onAction(a, id) {
+  const u = data.users.find(x => x.id === id); if (!u) return;
+  if (a === 'rename') dialog({ title: 'Adı dəyiş', input: u.name, ok: 'Saxla', run: v => v && act('rename', id, v, 'Ad dəyişdi') });
+  if (a === 'ban') dialog({ title: `${u.name} ban edilsin?`, text: 'Cihaz dərhal ayrılacaq və eyni telefonla yenidən qoşula bilməyəcək.', ok: 'Ban et', run: () => act('ban', id, '', 'Cihaz bloklandı') });
+  if (a === 'unban') act('unban', id, '', 'Ban götürüldü');
+  if (a === 'move') dialog({ title: `${u.name} hansı qrupa keçsin?`, text: 'Cihaz köhnə qrupun kontaktlarını artıq görməyəcək.', ok: 'Köçür',
+    select: data.groups.map(g => [g.id, g.name]), selected: u.group, run: v => v && v !== u.group && act('move', id, v, 'Köçürüldü') });
+  if (a === 'delete') dialog({ title: `${u.name} silinsin?`, text: 'Cihaz siyahıdan silinir, amma kodu bilirsə yenidən qoşula bilər. Bunun qarşısını almaq üçün Ban edin.', ok: 'Sil', run: () => act('delete', id, '', 'Silindi') });
+}
+
+function dialog({ title, text, input, select, selected, ok, run }) {
+  const s = document.createElement('div');
+  s.className = 'scrim';
+  s.innerHTML = `<form class="sheet dialog"><h3>${esc(title)}</h3>${text ? `<p>${esc(text)}</p>` : ''}
+    ${input != null ? `<input class="input" maxlength="64" value="${esc(input)}">` : ''}
+    ${select ? `<select class="input" style="width:100%;margin-bottom:14px">${select.map(([v, t]) => `<option value="${esc(v)}"${v === selected ? ' selected' : ''}>${esc(t)}</option>`).join('')}</select>` : ''}
+    <div class="row"><button type="button" class="btn" data-x>Ləğv et</button><button class="btn primary">${esc(ok)}</button></div></form>`;
+  const close = () => { s.remove(); document.removeEventListener('keydown', onKey); };
+  const onKey = e => { if (e.key === 'Escape') close(); };
+  document.addEventListener('keydown', onKey);
+  s.onclick = e => { if (e.target === s || e.target.hasAttribute('data-x')) close(); };
+  s.querySelector('form').onsubmit = e => { e.preventDefault(); const i = s.querySelector('input, select'); close(); run(i ? i.value.trim() : undefined); };
+  document.body.appendChild(s);
+  const i = s.querySelector('input'); if (i) { i.focus(); i.select(); } else s.querySelector('.primary').focus();
+}
+
+let toastT;
+function toast(msg) {
+  if (!msg) return;
+  let t = $('.toast'); if (!t) { t = document.createElement('div'); t.className = 'toast'; document.body.appendChild(t); }
+  t.textContent = msg; clearTimeout(toastT); toastT = setTimeout(() => t.remove(), 2200);
+}
+
+// ---------- boot ----------
+if (location.hash === '#invite') location.hash = '#groups';
+view = VIEWS.some(v => v.id === location.hash.slice(1)) ? location.hash.slice(1) : 'overview';
+load(true);
+setInterval(load, 8000);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) load(); });
+</script>
+</body>
+</html>

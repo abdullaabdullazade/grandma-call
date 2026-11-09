@@ -1,0 +1,9 @@
+<resources>
+    <color name="green">#FF008069</color>
+    <color name="green_light">#FF00A884</color>
+    <color name="text">#FF111B21</color>
+    <color name="muted">#FF667781</color>
+    <color name="red">#FFEA0038</color>
+    <color name="divider">#FFE9EDEF</color>
+    <color name="call_bg">#FF0B141A</color>
+</resources>
