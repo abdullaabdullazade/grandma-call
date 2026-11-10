@@ -74,19 +74,8 @@ class ZengService : Service(), Signaling.Listener {
     private fun build(): Notification {
         val cm = CallManager
         return when (cm.state) {
-            CallManager.State.INCOMING -> builder(App.CH_INCOMING)
-                .setSmallIcon(R.drawable.ic_call)
-                .setContentTitle(cm.title())
-                .setContentText(L.s(if (cm.videoCall) R.string.incoming_video else R.string.incoming_voice))
-                .setCategory(Notification.CATEGORY_CALL)
-                .setPriority(Notification.PRIORITY_MAX)
-                .setOngoing(true)
-                .setFullScreenIntent(pending(CallActivity::class.java, 1), true)
-                .setContentIntent(pending(CallActivity::class.java, 1))
-                .addAction(0, L.s(R.string.decline), action(ACT_DECLINE, 2))
-                .addAction(0, L.s(R.string.answer), action(ACT_ANSWER, 3))
-                .build()
-            CallManager.State.IDLE, CallManager.State.ENDED -> builder(App.CH_SERVICE)
+            // the ringing call has its own notification (incomingNotice); this one stays quiet
+            CallManager.State.IDLE, CallManager.State.ENDED, CallManager.State.INCOMING -> builder(App.CH_SERVICE)
                 .setSmallIcon(R.drawable.ic_call)
                 .setContentTitle(L.s(R.string.app_name))
                 .setContentText(L.s(if (Signaling.connected) R.string.notif_ready else R.string.connecting_server))
@@ -128,6 +117,43 @@ class ZengService : Service(), Signaling.Listener {
         const val ID_MAIN = 1
         const val ID_MISSED = 2
         const val ID_UPDATE = 3
+        const val ID_CALL = 4
+        private var shownCall: String? = null
+
+        /**
+         * Incoming call as a NEW high-priority notification with a full-screen intent. Android only
+         * launches the full-screen call screen (on a locked phone too) when such a notification is
+         * posted, not when an existing one is updated. Works without the service running.
+         */
+        @Suppress("DEPRECATION")
+        fun incomingNotice() {
+            val c = App.ctx
+            val nm = c.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+            val cm = CallManager
+            if (cm.state != CallManager.State.INCOMING) {
+                if (shownCall != null) { nm.cancel(ID_CALL); shownCall = null }
+                return
+            }
+            if (shownCall == cm.callId) return
+            shownCall = cm.callId
+            val open = PendingIntent.getActivity(c, 1, Intent(c, CallActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK), flags())
+            fun act(a: String, req: Int) = PendingIntent.getBroadcast(c, req, Intent(c, CallActionReceiver::class.java).setAction(a), flags())
+            val b = if (Build.VERSION.SDK_INT >= 26) Notification.Builder(c, App.CH_INCOMING) else Notification.Builder(c)
+            val n = b.setSmallIcon(R.drawable.ic_call)
+                .setContentTitle(cm.title())
+                .setContentText(L.s(if (cm.videoCall) R.string.incoming_video else R.string.incoming_voice))
+                .setCategory(Notification.CATEGORY_CALL)
+                .setPriority(Notification.PRIORITY_MAX)
+                .setVisibility(Notification.VISIBILITY_PUBLIC)
+                .setOngoing(true)
+                .setFullScreenIntent(open, true)
+                .setContentIntent(open)
+                .addAction(0, L.s(R.string.decline), act(ACT_DECLINE, 2))
+                .addAction(0, L.s(R.string.answer), act(ACT_ANSWER, 3))
+                .build()
+            nm.cancel(ID_CALL)
+            nm.notify(ID_CALL, n)
+        }
         const val ACT_ANSWER = "az.zeng.ANSWER"
         const val ACT_DECLINE = "az.zeng.DECLINE"
         const val ACT_HANGUP = "az.zeng.HANGUP"

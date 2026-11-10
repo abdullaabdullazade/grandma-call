@@ -61,8 +61,35 @@ object Ringer {
     }
 
     /** "tuuut … tuuut" the caller hears while the other phone rings. */
-    fun ringback() = playTone(ToneGenerator.TONE_SUP_RINGTONE, -1)
-    fun busy() = playTone(ToneGenerator.TONE_SUP_BUSY, 2500)
+    /** Real network ringback the caller hears: 425 Hz, 1 s on / 4 s off. Keeps playing if already on. */
+    fun ringback() {
+        if (signal == "ringback") return
+        playSignal("ringback", R.raw.ringback, true)
+    }
+
+    /** Busy signal: 425 Hz, 0.5 s on / 0.5 s off, three times. */
+    fun busy() = playSignal("busy", R.raw.busy, false)
+
+    private var signal: String? = null
+
+    // Call-progress tones go to the call audio path (earpiece/speaker), like on a normal phone call.
+    private fun playSignal(name: String, res: Int, loop: Boolean) {
+        stop()
+        player = try {
+            MediaPlayer().apply {
+                App.ctx.resources.openRawResourceFd(res).use { setDataSource(it.fileDescriptor, it.startOffset, it.length) }
+                setAudioAttributes(AudioAttributes.Builder()
+                    .setUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION_SIGNALLING)
+                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION).build())
+                isLooping = loop
+                if (!loop) setOnCompletionListener { if (player === it) stop() }
+                prepare()
+                start()
+            }
+        } catch (e: Exception) { null }
+        if (player != null) signal = name
+        else playTone(if (name == "busy") ToneGenerator.TONE_SUP_BUSY else ToneGenerator.TONE_SUP_RINGTONE, if (loop) -1 else 2500)
+    }
     fun ended() = playTone(ToneGenerator.TONE_PROP_PROMPT, 400)
 
     private fun playTone(type: Int, ms: Int, stream: Int = AudioManager.STREAM_VOICE_CALL) {
@@ -79,6 +106,7 @@ object Ringer {
 
     fun stop() {
         main.removeCallbacksAndMessages(null)
+        signal = null
         player?.run { try { stop() } catch (_: Exception) {}; release() }
         player = null
         stopTone()

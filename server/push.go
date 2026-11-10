@@ -114,7 +114,10 @@ func pushWake(uid, callId, from string) {
 	if fcm.key == nil || u == nil || u.Push == "" {
 		return
 	}
-	token, name := u.Push, nameOf(from)
+	token, name, video := u.Push, nameOf(from), "0"
+	if r := rooms[callId]; r != nil && r.video {
+		video = "1"
+	}
 	go func() {
 		at, err := accessToken()
 		if err != nil {
@@ -123,7 +126,8 @@ func pushWake(uid, callId, from string) {
 		}
 		body, _ := json.Marshal(map[string]any{"message": map[string]any{
 			"token": token,
-			"data":  map[string]string{"type": "wake", "callId": callId, "name": name},
+			// caller details let the phone ring immediately, before its socket reconnects
+			"data": map[string]string{"type": "wake", "callId": callId, "from": from, "name": name, "video": video},
 			// high priority + short TTL: wakes a sleeping phone now, never delivers a stale call later
 			"android": map[string]any{"priority": "HIGH", "ttl": "40s"},
 		}})

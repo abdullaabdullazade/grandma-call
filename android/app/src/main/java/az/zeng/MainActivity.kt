@@ -59,6 +59,7 @@ class MainActivity : BaseActivity(), Signaling.Listener {
         }
         App.startService(this)
         askPermissions()
+        setupOemHint()
     }
 
     override fun onNewIntent(i: Intent) {
@@ -109,6 +110,7 @@ class MainActivity : BaseActivity(), Signaling.Listener {
             !Signaling.connected -> banner.postDelayed(showConnecting, 3000)
             else -> banner.visibility = View.GONE
         }
+        checkCallAlerts()
         if (Prefs.token == null) { // server forgot us (deleted by admin): register again
             startActivity(Intent(this, JoinActivity::class.java))
             finish()
@@ -133,6 +135,69 @@ class MainActivity : BaseActivity(), Signaling.Listener {
         findViewById<TextView>(R.id.tabCalls).alpha = if (t == 1) 1f else 0.7f
         empty.setText(if (t == 0) R.string.empty_contacts else R.string.empty_calls)
         adapter.notifyDataSetChanged()
+    }
+
+    // ---------- can this phone actually show an incoming call? ----------
+
+    /**
+     * Incoming calls are a full-screen notification: if notifications, the call channel or (Android 14+)
+     * full-screen intents are off, a call rings nowhere. Say so loudly and link to the right switch.
+     */
+    private fun checkCallAlerts() {
+        val nm = getSystemService(NOTIFICATION_SERVICE) as android.app.NotificationManager
+        val target: Intent? = when {
+            Build.VERSION.SDK_INT >= 24 && !nm.areNotificationsEnabled() ->
+                if (Build.VERSION.SDK_INT >= 26) Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).putExtra(Settings.EXTRA_APP_PACKAGE, packageName)
+                else Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:$packageName"))
+            Build.VERSION.SDK_INT >= 26 && nm.getNotificationChannel(App.CH_INCOMING)?.importance == android.app.NotificationManager.IMPORTANCE_NONE ->
+                Intent(Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS).putExtra(Settings.EXTRA_APP_PACKAGE, packageName)
+                    .putExtra(Settings.EXTRA_CHANNEL_ID, App.CH_INCOMING)
+            Build.VERSION.SDK_INT >= 34 && !nm.canUseFullScreenIntent() ->
+                Intent(Settings.ACTION_MANAGE_APP_USE_FULL_SCREEN_INTENT, Uri.parse("package:$packageName"))
+            else -> null
+        }
+        val bar = findViewById<TextView>(R.id.alertBar)
+        bar.visibility = if (target != null) View.VISIBLE else View.GONE
+        bar.setOnClickListener {
+            try { startActivity(target!!.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) }
+            catch (_: Exception) { startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:$packageName"))) }
+        }
+    }
+
+    // ---------- phone makers that block calls on the lock screen ----------
+
+    /**
+     * Honor/Huawei/Xiaomi/Oppo/Vivo ship extra switches ("show on lock screen", "auto-launch",
+     * "pop-up windows") that are off for apps outside their store, so incoming calls don't open.
+     * Show a one-time hint that takes the user to the right settings page.
+     */
+    private fun setupOemHint() {
+        val maker = Build.MANUFACTURER.lowercase()
+        val strict = listOf("honor", "huawei", "xiaomi", "redmi", "poco", "oppo", "realme", "vivo", "oneplus").any { maker.contains(it) }
+        val bar = findViewById<View>(R.id.oemBar)
+        bar.visibility = if (strict && !Prefs.oemHintDone) View.VISIBLE else View.GONE
+        bar.setOnClickListener {
+            Prefs.oemHintDone = true
+            bar.visibility = View.GONE
+            openOemSettings()
+        }
+    }
+
+    private fun openOemSettings() {
+        val pkg = packageName
+        val candidates = listOf(
+            // Honor (MagicOS) / Huawei (EMUI): app launch management
+            Intent().setClassName("com.hihonor.systemmanager", "com.hihonor.systemmanager.startupmgr.ui.StartupNormalAppListActivity"),
+            Intent().setClassName("com.huawei.systemmanager", "com.huawei.systemmanager.startupmgr.ui.StartupNormalAppListActivity"),
+            // Xiaomi (MIUI/HyperOS): other permissions incl. "show on lock screen"
+            Intent("miui.intent.action.APP_PERM_EDITOR").setClassName("com.miui.securitycenter",
+                "com.miui.permcenter.permissions.PermissionsEditorActivity").putExtra("extra_pkgname", pkg),
+            // everyone else, and the fallback: the app's own settings page
+            Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:$pkg")),
+        )
+        for (i in candidates) {
+            try { startActivity(i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)); Toast.makeText(this, R.string.oem_hint_steps, Toast.LENGTH_LONG).show(); return } catch (_: Exception) {}
+        }
     }
 
     // ---------- calling ----------

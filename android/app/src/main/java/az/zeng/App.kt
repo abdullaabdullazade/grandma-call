@@ -70,6 +70,9 @@ object Prefs {
     var lang: String
         get() = p.getString("lang", "az")!!
         set(v) = p.edit().putString("lang", v).apply()
+    var oemHintDone: Boolean
+        get() = p.getBoolean("oemHintDone", false)
+        set(v) = p.edit().putBoolean("oemHintDone", v).apply()
     var askedBattery: Boolean
         get() = p.getBoolean("askedBattery", false)
         set(v) = p.edit().putBoolean("askedBattery", v).apply()

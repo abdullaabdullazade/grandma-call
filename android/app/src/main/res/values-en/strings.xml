@@ -81,4 +81,7 @@
     <string name="no_one_to_add">No other contacts to add</string>
     <string name="call_full">A call can have at most 4 people</string>
     <string name="you">You</string>
+    <string name="oem_hint">Let calls open on the lock screen: tap here to allow it</string>
+    <string name="oem_hint_steps">For Call, turn on: “Auto-launch”, “Run in background”, “Show on lock screen” and “Pop-up windows”</string>
+    <string name="alerts_off">Notifications are off: calls won\'t show. Tap to turn them on</string>
 </resources>

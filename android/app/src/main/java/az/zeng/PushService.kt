@@ -12,8 +12,12 @@ import org.json.JSONObject
 class PushService : FirebaseMessagingService() {
     override fun onMessageReceived(m: RemoteMessage) {
         if (m.data["type"] != "wake") return
-        App.startService(this)
-        Signaling.ensureFresh()
+        val d = m.data
+        android.os.Handler(android.os.Looper.getMainLooper()).post {
+            CallManager.incomingFromPush(d["callId"] ?: "", d["from"] ?: "", d["name"] ?: "", d["video"] == "1")
+            App.startService(this)
+            Signaling.ensureFresh()
+        }
     }
 
     override fun onNewToken(token: String) = send(token)

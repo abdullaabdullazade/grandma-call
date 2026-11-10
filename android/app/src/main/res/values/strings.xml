@@ -81,4 +81,7 @@
     <string name="no_one_to_add">Əlavə etmək üçün başqa kontakt yoxdur</string>
     <string name="call_full">Zəngdə ən çox 4 nəfər ola bilər</string>
     <string name="you">Siz</string>
+    <string name="oem_hint">Zənglər kilid ekranında açılsın: buraya toxunub icazə verin</string>
+    <string name="oem_hint_steps">Call üçün açın: “Avtomatik başlatma”, “Arxa fonda işləmə”, “Kilid ekranında göstər” və “Açılan pəncərələr”</string>
+    <string name="alerts_off">Bildirişlər bağlıdır: zənglər görünməyəcək. Açmaq üçün toxunun</string>
 </resources>

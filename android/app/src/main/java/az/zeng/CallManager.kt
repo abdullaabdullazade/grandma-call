@@ -148,12 +148,48 @@ object CallManager : Signaling.Listener {
     private fun update() {
         onUpdate?.invoke()
         ZengService.refresh()
+        ZengService.incomingNotice()
+    }
+
+    /**
+     * Ring straight from a Google push (like WhatsApp): the phone shows the call before the socket
+     * is even up. When the socket connects, the server re-sends "incoming" for the same call
+     * (acknowledged), or nothing if it already ended (then the re-ring check hangs up).
+     */
+    fun incomingFromPush(id: String, from: String, name: String, video: Boolean) {
+        if (state == State.ENDED) { main.removeCallbacksAndMessages(ENDED_TOKEN); state = State.IDLE; peers.clear() }
+        if (state != State.IDLE || id.isEmpty() || id in declined || gsmBusy) return
+        reset()
+        callId = id
+        inviterId = from; inviterName = name; videoCall = video
+        otherMembers = listOf()
+        set(State.INCOMING)
+        Ringer.ringIncoming()
+        main.removeCallbacks(ringTimeout)
+        main.postDelayed(ringTimeout, 50000)
+        openCallScreen()
+    }
+
+    private var screenWake: android.os.PowerManager.WakeLock? = null
+
+    /** Turn the screen on for a ringing call, also on phones that ignore the full-screen intent when dark. */
+    @Suppress("DEPRECATION")
+    private fun wakeScreen(on: Boolean) {
+        if (on && screenWake == null) {
+            val pm = App.ctx.getSystemService(android.content.Context.POWER_SERVICE) as android.os.PowerManager
+            screenWake = pm.newWakeLock(android.os.PowerManager.SCREEN_BRIGHT_WAKE_LOCK or android.os.PowerManager.ACQUIRE_CAUSES_WAKEUP, "zeng:incoming")
+                .apply { acquire(30000) }
+        } else if (!on) {
+            screenWake?.let { if (it.isHeld) it.release() }
+            screenWake = null
+        }
     }
 
     private fun set(s: State) {
         state = s
+        wakeScreen(s == State.INCOMING)
         when (s) {
-            State.RINGING -> Ringer.ringback()
+            State.OUTGOING, State.RINGING -> Ringer.ringback() // from the first moment, like a normal call
             State.CONNECTING, State.ACTIVE, State.RECONNECTING -> Ringer.stop()
             else -> {}
         }

@@ -26,8 +26,8 @@ android {
         minSdk = 21
         // Sideloaded app, not on Play: 28 keeps background call ringing simple on new Android versions.
         targetSdk = 28
-        versionCode = (findProperty("vc") as String?)?.toInt() ?: 12
-        versionName = "4.6"
+        versionCode = (findProperty("vc") as String?)?.toInt() ?: 13
+        versionName = "4.7"
         buildConfigField("String", "SERVER", "\"$server\"")
         // plain http only for local test builds; production is https + pinned roots
         manifestPlaceholders["cleartext"] = server.startsWith("http:").toString()
