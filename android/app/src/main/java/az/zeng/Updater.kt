@@ -72,11 +72,14 @@ object Updater {
         val token = Prefs.token ?: return
         if (state != State.AVAILABLE && state != State.FAILED) return
         progress = 0
+        state = State.DOWNLOADING // synchronously: a double tap must not start a second download
         set(State.DOWNLOADING)
         Thread {
             // Android 5/6: the old installer reads a world-readable file:// APK; newer ones use sessions.
             val legacy = Build.VERSION.SDK_INT < 24
-            val file = if (legacy) File(c.getExternalFilesDir(null) ?: c.filesDir, "update.apk") else File(c.cacheDir, "update.apk")
+            val dir = if (legacy) c.getExternalFilesDir(null) ?: c.filesDir else c.cacheDir
+            dir.listFiles { f -> f.name.startsWith("update") && f.name.endsWith(".apk") }?.forEach { it.delete() }
+            val file = File(dir, "update-${System.currentTimeMillis()}.apk") // own file per attempt
             try {
                 val req = Request.Builder().url(BuildConfig.SERVER + "/app/apk").header("Authorization", "Bearer $token").build()
                 val md = MessageDigest.getInstance("SHA-256")
